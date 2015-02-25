@@ -13,22 +13,24 @@ class Range
       raise ArgumentError.new(err)
     end
 
-    if into == 1
-      [self]
-    else
-      partition = min + (count.to_f / into).ceil - 1
+    partition    = count / into
+    remainder    = count % into
+    parts, start = [], 0
 
-      if max == partition
-        [self]
+    into.times do |index|
+      length = partition + (remainder > 0 && remainder > index ? 1 : 0)
+
+      if endianness == :big
+        parts << to_a.slice(start, length)
       else
-        args = params.merge(:into => into - 1)
-        partition -= 1 if endianness == :little
-
-        head = min..partition
-        tail = ((partition + 1)..max).split(args)
-
-        [head] + tail
+        parts.unshift(to_a.slice(-start-length, length))
       end
+
+      start += length
+    end
+
+    parts.select(&:any?).map do |part|
+      part.first..part.last
     end
   end
 end
