@@ -70,4 +70,13 @@ describe 'Range Splitter' do
     )
   end
 
+  it 'supports non numeric ranges' do
+    expect(('a'..'g').split).to eq ['a'..'d', 'e'..'g']
+  end
+
+  context 'range splits evenly' do
+    it 'ignores :endianness option' do
+      expect((1..10).split(:endianness => :big)).to eq (1..10).split(:endianness => :little)
+    end
+  end
 end
