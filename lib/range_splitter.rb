@@ -1,17 +1,6 @@
 class Range
   def split(params = {})
-    into = params[:into] || 2
-    endianness = params[:endianness] || :big
-
-    unless [:big, :little].include?(endianness)
-      err = 'The endianness parameter must be either :big or :little'
-      raise ArgumentError.new(err)
-    end
-
-    if into <= 0
-      err = "Cannot split #{self} into #{into} ranges."
-      raise ArgumentError.new(err)
-    end
+    into, endianness = parse_split_params(params)
 
     partition    = count / into
     remainder    = count % into
@@ -32,5 +21,24 @@ class Range
     parts.select(&:any?).map do |part|
       part.first..part.last
     end
+  end
+
+  private
+
+  def parse_split_params(params)
+    into       = params.fetch :into, 2
+    endianness = params.fetch :endianness, :big
+
+    unless [:big, :little].include?(endianness)
+      err = 'The endianness parameter must be either :big or :little'
+      raise ArgumentError.new(err)
+    end
+
+    if into <= 0
+      err = "Cannot split #{self} into #{into} ranges."
+      raise ArgumentError.new(err)
+    end
+
+    [into, endianness]
   end
 end
